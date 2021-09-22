@@ -3,22 +3,24 @@ from .validators import validate_blocked_words
 from django.core.exceptions import ValidationError
 
 
-# (DB_VALUE, USER_FACING_VALUE)
-PUBLISH_STATE_CHOICES = [
-    ('draft', 'DRAFT'),
-    ('publish', 'PUBLISH'),
-    ('private', 'PRIVATE')
-]
-
-
 class Product(models.Model):
-    """ a single product"""
+    DRAFT = 'draft'
+    PUBLISH = 'publish'
+    PRIVATE = 'private'
+
+    # (DB_VALUE, USER_FACING_VALUE)
+    PUBLISH_STATE_CHOICES = [
+        (DRAFT, 'DRAFT'),
+        (PUBLISH, 'PUBLISH'),
+        (PRIVATE, 'PRIVATE')
+    ]
+
     title = models.CharField(max_length=120,
                              validators=[
                                  validate_blocked_words,
                              ])  # this only validate on forms
     state = models.CharField(max_length=120,
-                             default='DRAFT',
+                             default=DRAFT,
                              choices=PUBLISH_STATE_CHOICES,
                              )
     description = models.TextField(null=True)
@@ -32,7 +34,7 @@ class Product(models.Model):
 
     @property
     def is_published(self):
-        return self.state == 'PUBLISH'
+        return self.state == self.PUBLISH
 
     def __str__(self):
         return self.title
