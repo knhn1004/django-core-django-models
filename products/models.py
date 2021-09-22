@@ -1,5 +1,6 @@
 from django.db import models
 from .validators import validate_blocked_words
+from django.core.exceptions import ValidationError
 
 
 class Product(models.Model):
@@ -16,3 +17,11 @@ class Product(models.Model):
         # to validate on any creation
         validate_blocked_words(self.title)
         super().save(*args, **kwargs)
+
+    def clean(self):
+        '''
+        Django Model Forms / Django Forms
+        Project.objects.create() -> not call .clean()
+        '''
+        if self.title == self.description:
+            raise ValidationError('Make the description different')
