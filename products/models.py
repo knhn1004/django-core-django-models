@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.db.models.signals import pre_save
 
-User = settings.AUTH_USER_MODEL # "auth.User"
+User = settings.AUTH_USER_MODEL  # "auth.User"
 
 
 class ProductQuerySet(models.QuerySet):
@@ -80,7 +80,8 @@ def slugify_pre_save(sender, instance, *args, **kwargs):
         Klass = instance.__class__
         #qs = Product.objects.filter(slug=new_slug)
         #qs = Klass.objects.filter(slug=new_slug)
-        qs = Klass.objects.filter(slug=new_slug).exclude(id=instance.id)
+        qs = Klass.objects.filter(
+            slug__icontains=new_slug).exclude(id=instance.id)
         if qs.count() == 0:
             instance.slug = new_slug
         else:

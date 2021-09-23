@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.utils.text import slugify
 from .models import Product
 
 
@@ -7,6 +8,7 @@ class ProductTestCase(TestCase):
         ''' set up function '''
         self.create_draft_items()
         self.create_published_items()
+        self.create_unique_slug_items()
 
     def create_draft_items(self):
         ''' create some mock DRAFT items '''
@@ -29,7 +31,8 @@ class ProductTestCase(TestCase):
         ''' test created DRAFT items count '''
         qs = Product.objects.filter(state=Product.PublishStateOptions.DRAFT)
         #self.assertTrue(qs.count() == self.draft_count)
-        self.assertEqual(qs.count(), self.draft_count)
+        self.assertEqual(qs.count(), self.draft_count +
+                         self.unique_slugs_count)
 
     def create_published_items(self):
         ''' create mock published items '''
@@ -88,3 +91,42 @@ class ProductTestCase(TestCase):
             custom_filter_qs.values_list('id', flat=True)
         )  # utilizing the values_list func of qs
         self.assertEqual(manager_qs_ids, custom_filter_qs_ids)
+        self.assertEqual(len(custom_filter_qs), 3)
+
+    def create_unique_slug_items(self):
+        ''' create mock items to slugify '''
+        my_non_unique_title = 'Nulla et convallis lectus non congue lacus ac felis'
+        data = {
+            'title': my_non_unique_title,
+            'price': 12.99,
+        }
+        self.slug_title = my_non_unique_title
+        self.slugified_title = slugify(my_non_unique_title)
+        self.slug_a = Product.objects.create(**data)
+        self.slug_b = Product.objects.create(**data)
+        self.slug_c = Product.objects.create(**data)
+        self.unique_slugs_count = 3
+
+    def test_slug_title_signal(self):
+        ''' check generated slug is correct and the signal worked '''
+        self.assertEqual(self.slug_a.slug, self.slugified_title)
+
+    def test_slugs_unique(self):
+        ''' check if generated slugs were unique '''
+        self.assertNotEqual(
+            self.slug_a.slug,
+            self.slug_b.slug,
+            self.slug_c.slug,
+        )
+
+    def test_slugs_unique_on_extra(self):
+        ''' test if extra slugs were unique '''
+        self.assertNotEqual(self.slugified_title, self.slug_b.slug)
+        self.assertNotEqual(self.slugified_title, self.slug_c.slug)
+        self.assertNotEqual(self.slug_b.slug, self.slug_c.slug)
+
+    def test_original_slug_count(self):
+        ''' check if original slug count is not equal to all unique slugs count '''
+        qs = Product.objects.filter(slug=self.slugified_title)
+        self.assertEqual(qs.count(), 1)  # original slug count
+        self.assertNotEqual(qs.count(), self.unique_slugs_count)
