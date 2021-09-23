@@ -1,9 +1,12 @@
+from django.conf import settings
 from django.db import models
 from .validators import validate_blocked_words
 from core.db.models import BasePublishModel
 from django.utils import timezone
 from django.utils.text import slugify
 from django.db.models.signals import pre_save
+
+User = settings.AUTH_USER_MODEL # "auth.User"
 
 
 class ProductQuerySet(models.QuerySet):
@@ -43,6 +46,9 @@ class Product(BasePublishModel):
     #order = models.IntegerField()
 
     tags = models.TextField(null=True)
+
+    # user FK
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     ''' cutom manager '''
     objects = ProductManager()

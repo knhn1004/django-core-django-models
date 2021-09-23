@@ -1,4 +1,10 @@
+from django.contrib.auth import get_user_model
 from products.models import Product
+
+User = get_user_model()
+
+u1 = User.objects.first()
+Product.objects.create(user=u1, title='My u1 product', price=12.99)
 
 products_to_import = [
     {'title': 'product 1', 'price': 12.99},
