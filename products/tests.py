@@ -4,6 +4,8 @@ from .models import Product
 
 
 class ProductTestCase(TestCase):
+    #fixtures = ['products/fixtures/products/products.json']
+
     def setUp(self):
         ''' set up function '''
         self.create_draft_items()
