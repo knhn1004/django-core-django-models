@@ -42,6 +42,8 @@ class Product(BasePublishModel):
 
     #order = models.IntegerField()
 
+    tags = models.TextField(null=True)
+
     ''' cutom manager '''
     objects = ProductManager()
 
