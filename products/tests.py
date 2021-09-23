@@ -72,9 +72,13 @@ class ProductTestCase(TestCase):
         manager_qs = Product.objects.published()
         custom_filter_qs = Product.objects.all().published()
 
-        self.assertEqual(manager_qs.count(), self.pub_count)
-        self.assertEqual(custom_filter_qs.count(), self.pub_count)
-        self.assertEqual(custom_filter_qs.count(), manager_qs.count())
+        #self.assertEqual(manager_qs.count(), self.pub_count)
+        #self.assertEqual(custom_filter_qs.count(), self.pub_count)
+        self.assertEqual(
+            custom_filter_qs.count(),
+            manager_qs.count(),
+            self.pub_count,
+        )
 
         # we use set for potential duplicated values
         manager_qs_ids = set(
